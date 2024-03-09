@@ -25,8 +25,8 @@ pipeline{
         }
         stage("Sonarqube Analysis "){
             steps{
-                withSonarQubeEnv('Sonar-Server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Redit-NodeJs-App \
+                withSonarQubeEnv('SonarScanner') {
+                    sh ''' $SCANNER_HOME/bin/SonarScanner -Dsonar.projectName=Redit-NodeJs-App \
                     -Dsonar.projectKey=Redit-NodeJs-App '''
                 }
             }
@@ -68,17 +68,6 @@ pipeline{
         stage('Deploy to container'){
             steps{
                 sh 'docker run -d --name reddit -p 3000:3000 awanmbandi/reddit:latest'
-            }
-        }
-        stage('Deploy to kubernets'){
-            steps{
-                script{
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'Kubernetes-Credential', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
-                       sh 'kubectl apply -f deployment.yml'
-                       sh 'kubectl apply -f service.yml'
-                       sh 'kubectl apply -f ingress.yml'
-                  }
-                }
             }
         }
     }
